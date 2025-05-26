@@ -1,130 +1,152 @@
-package bstreelinklistinterfgeneric;
+package Ejercicio1;
 
-import bstreeInterface.BinarySearchTree;
+import Exceptions.ExceptionIsEmpty;
 import Exceptions.ItemDuplicated;
 import Exceptions.ItemNotFound;
-import Exceptions.ExceptionIsEmpty;
+import bstreeInterface.BinarySearchTree;
+
+
+import java.util.LinkedList;
+import java.util.Queue;
 
 public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
+
     private Node<E> root;
 
     public LinkedBST() {
         this.root = null;
     }
 
-    // Agregar elemento validando duplicado
+    @Override
     public void insert(E data) throws ItemDuplicated {
         root = insertRec(root, data);
     }
 
     private Node<E> insertRec(Node<E> node, E data) throws ItemDuplicated {
         if (node == null) return new Node<>(data);
-        int cmp = data.compareTo(node.data);
-        if (cmp < 0) node.left = insertRec(node.left, data);
-        else if (cmp > 0) node.right = insertRec(node.right, data);
-        else throw new ItemDuplicated("Elemento duplicado: " + data);
+        int cmp = data.compareTo(node.getData());
+        if (cmp == 0) throw new ItemDuplicated();
+        if (cmp < 0) node.setLeft(insertRec(node.getLeft(), data));
+        else node.setRight(insertRec(node.getRight(), data));
         return node;
     }
 
-    // Buscar elemento validando si fue encontrado
+    @Override
     public E search(E data) throws ItemNotFound {
         return searchRec(root, data);
     }
 
     private E searchRec(Node<E> node, E data) throws ItemNotFound {
-        if (node == null) throw new ItemNotFound("No se encontró: " + data);
-        int cmp = data.compareTo(node.data);
-        if (cmp < 0) return searchRec(node.left, data);
-        else if (cmp > 0) return searchRec(node.right, data);
-        else return node.data;
+        if (node == null) throw new ItemNotFound();
+        int cmp = data.compareTo(node.getData());
+        if (cmp == 0) return node.getData();
+        if (cmp < 0) return searchRec(node.getLeft(), data);
+        else return searchRec(node.getRight(), data);
     }
 
-    // Eliminar elemento validando si árbol está vacío
+    @Override
     public void delete(E data) throws ExceptionIsEmpty {
-        if (root == null) throw new ExceptionIsEmpty("Árbol vacío");
+        if (root == null) throw new ExceptionIsEmpty();
         root = deleteRec(root, data);
     }
 
     private Node<E> deleteRec(Node<E> node, E data) {
         if (node == null) return null;
-        int cmp = data.compareTo(node.data);
-        if (cmp < 0) node.left = deleteRec(node.left, data);
-        else if (cmp > 0) node.right = deleteRec(node.right, data);
+        int cmp = data.compareTo(node.getData());
+        if (cmp < 0) node.setLeft(deleteRec(node.getLeft(), data));
+        else if (cmp > 0) node.setRight(deleteRec(node.getRight(), data));
         else {
-            if (node.left == null) return node.right;
-            if (node.right == null) return node.left;
-            Node<E> min = findMinNode(node.right);
-            node.data = min.data;
-            node.right = deleteRec(node.right, min.data);
+            if (node.getLeft() == null) return node.getRight();
+            if (node.getRight() == null) return node.getLeft();
+            Node<E> min = findMinNode(node.getRight());
+            node.setData(min.getData());
+            node.setRight(deleteRec(node.getRight(), min.getData()));
         }
         return node;
-    }
-
-    // Mostrar árbol in-order como cadena
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        inOrder(root, sb);
-        return sb.toString();
-    }
-
-    private void inOrder(Node<E> node, StringBuilder sb) {
-        if (node != null) {
-            inOrder(node.left, sb);
-            sb.append(node.data).append(" ");
-            inOrder(node.right, sb);
-        }
-    }
-
-    private void preOrder(Node<E> node, StringBuilder sb) {
-        if (node != null) {
-            sb.append(node.data).append(" ");
-            preOrder(node.left, sb);
-            preOrder(node.right, sb);
-        }
-    }
-
-    private void postOrder(Node<E> node, StringBuilder sb) {
-        if (node != null) {
-            postOrder(node.left, sb);
-            postOrder(node.right, sb);
-            sb.append(node.data).append(" ");
-        }
-    }
-
-    public String printPreOrder() {
-        StringBuilder sb = new StringBuilder();
-        preOrder(root, sb);
-        return sb.toString();
-    }
-
-    public String printPostOrder() {
-        StringBuilder sb = new StringBuilder();
-        postOrder(root, sb);
-        return sb.toString();
     }
 
     private Node<E> findMinNode(Node<E> node) {
-        if (node == null) return null;
-        while (node.left != null) node = node.left;
+        while (node.getLeft() != null) node = node.getLeft();
         return node;
     }
 
-    public E findMin() throws ItemNotFound {
-        Node<E> min = findMinNode(root);
-        if (min == null) throw new ItemNotFound("No se encontró el mínimo.");
-        return min.data;
+    private Node<E> findNode(Node<E> node, E x) {
+        while (node != null) {
+            int cmp = x.compareTo(node.getData());
+            if (cmp == 0) return node;
+            else if (cmp < 0) node = node.getLeft();
+            else node = node.getRight();
+        }
+        return null;
     }
 
-    private Node<E> findMaxNode(Node<E> node) {
-        if (node == null) return null;
-        while (node.right != null) node = node.right;
-        return node;
+    // elimina todos los nodos de un BST
+    public void destroyNodes() throws ExceptionIsEmpty {
+        if (root == null) throw new ExceptionIsEmpty();
+        root = null;
     }
 
-    public E findMax() throws ItemNotFound {
-        Node<E> max = findMaxNode(root);
-        if (max == null) throw new ItemNotFound("No se encontró el máximo.");
-        return max.data;
+    // Retorna y cuenta el número de nodos 
+    public int countAllNodes() {
+        return countAllNodesRec(root);
+    }
+
+    private int countAllNodesRec(Node<E> node) {
+        if (node == null) return 0;
+        return 1 + countAllNodesRec(node.getLeft()) + countAllNodesRec(node.getRight());
+    }
+
+    // Retorna solo los nodos 
+    public int countNodes() {
+        return countNodesRec(root);
+    }
+
+    private int countNodesRec(Node<E> node) {
+        if (node == null || (node.getLeft() == null && node.getRight() == null)) return 0;
+        return 1 + countNodesRec(node.getLeft()) + countNodesRec(node.getRight());
+    }
+
+    // Retorna la altura del subárbol
+    public int height(E x) {
+        Node<E> start = findNode(root, x);
+        if (start == null) return -1;
+
+        Queue<Node<E>> queue = new LinkedList<>();
+        queue.add(start);
+        int height = -1;
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            height++;
+            for (int i = 0; i < size; i++) {
+                Node<E> current = queue.poll();
+                if (current.getLeft() != null) queue.add(current.getLeft());
+                if (current.getRight() != null) queue.add(current.getRight());
+            }
+        }
+
+        return height;
+    }
+
+    // Retorna la anchura de todo el árbol 
+    public int amplitude(int level) {
+        if (root == null || level < 0) return 0;
+
+        Queue<Node<E>> queue = new LinkedList<>();
+        queue.add(root);
+        int currentLevel = 0;
+
+        while (!queue.isEmpty()) {
+            int size = queue.size();
+            if (currentLevel == level) return size;
+            for (int i = 0; i < size; i++) {
+                Node<E> current = queue.poll();
+                if (current.getLeft() != null) queue.add(current.getLeft());
+                if (current.getRight() != null) queue.add(current.getRight());
+            }
+            currentLevel++;
+        }
+        return 0;
     }
 }
 
