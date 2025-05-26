@@ -1,4 +1,4 @@
-package Ejercicio2;
+package Ejercicio3;
 
 import Exceptions.ExceptionIsEmpty;
 import Exceptions.ItemDuplicated;
@@ -194,7 +194,30 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
             drawBSTRec(node.getLeft(), prefix + (isTail ? "    " : "│   "), true);
         }
     }
+    
+    public void parenthesize() {
+        parenthesizeRec(root, 0); // Inicia impresión desde la raíz con nivel 0
+    }
+
+    private void parenthesizeRec(Node<E> node, int level) {
+        if (node == null) return; // Caso base: nodo vacío no imprime nada
+
+        for (int i = 0; i < level; i++) System.out.print("    "); // Imprime sangría según nivel
+        System.out.print(node.getData()); // Imprime dato del nodo
+
+        boolean hasChildren = node.getLeft() != null || node.getRight() != null; // Verifica si tiene hijos
+
+        if (hasChildren) {
+            System.out.println(" ("); // Abre paréntesis si hay hijos
+            if (node.getLeft() != null) parenthesizeRec(node.getLeft(), level + 1); // Procesa hijo izquierdo
+            if (node.getRight() != null) parenthesizeRec(node.getRight(), level + 1); // Procesa hijo derecho
+            for (int i = 0; i < level; i++) System.out.print("    "); // Sangría para cerrar paréntesis
+            System.out.println(")"); // Cierra paréntesis del nodo
+        } else {
+            System.out.println(); // Si no tiene hijos, solo salto de línea
+        }
+    }
+
 
 
 }
-
