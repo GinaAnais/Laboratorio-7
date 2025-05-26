@@ -1,10 +1,10 @@
-package Ejercicio1;
+package Ejercicio2;
 
 import Exceptions.ExceptionIsEmpty;
 import Exceptions.ItemDuplicated;
 import Exceptions.ItemNotFound;
 import bstreeInterface.BinarySearchTree;
-
+import Ejercicio1.Node;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -148,5 +148,53 @@ public class LinkedBST<E extends Comparable<E>> implements BinarySearchTree<E> {
         }
         return 0;
     }
+    
+    // Devuelve el número de hojas del árbol
+    public int countLeaves() {
+        return countLeavesRec(root);
+    }
+
+    private int countLeavesRec(Node<E> node) {
+        if (node == null) return 0;
+        if (node.getLeft() == null && node.getRight() == null) return 1;
+        return countLeavesRec(node.getLeft()) + countLeavesRec(node.getRight());
+    }
+
+    // Devuelve la altura del árbol desde la raíz
+    public int treeHeight() {
+        return treeHeightRec(root);
+    }
+
+    private int treeHeightRec(Node<E> node) {
+        if (node == null) return -1;
+        int leftHeight = treeHeightRec(node.getLeft());
+        int rightHeight = treeHeightRec(node.getRight());
+        return 1 + Math.max(leftHeight, rightHeight);
+    }
+
+    // Calcula el área del árbol
+    public int areaBST() {
+        return countLeaves() * treeHeight();
+    }
+    
+    public void drawBST() {
+        drawBSTRec(root, "", true);
+    }
+
+    private void drawBSTRec(Node<E> node, String prefix, boolean isTail) {
+        if (node == null) return;
+
+        if (node.getRight() != null) {
+            drawBSTRec(node.getRight(), prefix + (isTail ? "│   " : "    "), false);
+        }
+
+        System.out.println(prefix + (isTail ? "└── " : "┌── ") + node.toString());
+
+        if (node.getLeft() != null) {
+            drawBSTRec(node.getLeft(), prefix + (isTail ? "    " : "│   "), true);
+        }
+    }
+
+
 }
 
